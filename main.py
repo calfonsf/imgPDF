@@ -1,5 +1,5 @@
 import sys
-from PyQt5 import QtWidgets
+from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtCore import QSize, Qt, QFileInfo, QModelIndex
 from PyQt5.QtWidgets import QApplication, QFileDialog, QToolBar, QMessageBox, QStyle, QAction, QStatusBar
 from math import ceil
@@ -61,7 +61,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.clearButton.clicked.connect(self.tv.clearData)
         layout.addWidget(self.convertButton, 0, 0)
         layout.addWidget(self.clearButton, 0, 1)
-    
+
+        self.setFocus()
+        self.setFocusPolicy(QtCore.Qt.StrongFocus)
+
     def fileClicked(self, index: QModelIndex):
         img_path = self.tv.model().getPath(index)
         self.preview.update(img_path, self.width()/4)

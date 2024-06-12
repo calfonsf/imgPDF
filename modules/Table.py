@@ -14,13 +14,14 @@ class myTable(QTableView):
         model = FilesModel([])
 
         self.setShowGrid(False)
-        # self.verticalHeader().setVisible(False)
         self.setModel(model)
         self.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.setHorizontalScrollMode(QAbstractItemView.ScrollPerPixel)
-        self.setFocusPolicy(Qt.NoFocus)
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.menuEvent)
+        
+        # self.verticalHeader().setVisible(False)
+        # self.setFocusPolicy(Qt.NoFocus)
 
     def dropEvent(self, event):
         if event.mimeData().hasUrls:
@@ -76,7 +77,7 @@ class myTable(QTableView):
 
         if len(rows) == 1: 
 
-            self.mymenu = QMenu(self)
+            mymenu = QMenu(self)
             removeAction = QAction('Remove')
             removeAction.triggered.connect(lambda: self.removeData(rows))
             
@@ -87,13 +88,19 @@ class myTable(QTableView):
             moveUpAction.triggered.connect(lambda: self.moveItemUp(rows[0]))
             moveDownAction.triggered.connect(lambda: self.moveItemDown(rows[0]))
 
-            # Adding Actions To menu
-            self.mymenu.addAction(moveUpAction)
-            self.mymenu.addAction(moveDownAction)
-            self.mymenu.addAction(removeAction)
+            if rows[0].row() == 0:
+                moveUpAction.setEnabled(False)
 
-            self.mymenu.popup(QCursor.pos())
-            self.mymenu.exec_()
+            if rows[0].row() == len(self.getData()) - 1:
+                moveDownAction.setEnabled(False)
+
+            # Adding Actions To menu
+            mymenu.addAction(moveUpAction)
+            mymenu.addAction(moveDownAction)
+            mymenu.addAction(removeAction)
+
+            mymenu.popup(QCursor.pos())
+            mymenu.exec_()
         
         if len(rows) > 1:
             self.mymenu = QMenu(self)
@@ -103,13 +110,18 @@ class myTable(QTableView):
             self.mymenu.popup(QCursor.pos())
             self.mymenu.exec_()
 
+    def keyPressEvent(self, e):
+        
+        if self.hasFocus():
+            if e.key() == Qt.Key.Key_Delete:
+                rows = self.selectionModel().selectedRows()
+                self.removeData(rows)
+
     def moveItemUp(self, index):
-        if index.row() > 0:
-            self.model().moveItemUp(index.row())
+        self.model().moveItemUp(index.row())
 
     def moveItemDown(self, index):
-        if index.row() < len(self.getData()):
-            self.model().moveItemDown(index.row())
+        self.model().moveItemDown(index.row())
 
     def removeData(self, indexList):
         self.model().removeData(indexList)
