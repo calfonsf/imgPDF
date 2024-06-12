@@ -55,10 +55,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setStatusBar(statusBar)
 
         # Buttons
-        self.ConvertButton = QtWidgets.QPushButton('Create PDF',self)
-        self.ConvertButton.clicked.connect(self.startConvertion)
-        self.ClearButton = QtWidgets.QPushButton('Clear',self)
-        self.ClearButton.clicked.connect(self.tv.clearData)
+        self.convertButton = QtWidgets.QPushButton('Create PDF',self)
+        self.convertButton.clicked.connect(self.startConvertion)
+        self.clearButton = QtWidgets.QPushButton('Clear',self)
+        self.clearButton.clicked.connect(self.tv.clearData)
         layout.addWidget(self.convertButton, 0, 0)
         layout.addWidget(self.clearButton, 0, 1)
     

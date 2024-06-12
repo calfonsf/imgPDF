@@ -70,22 +70,46 @@ class myTable(QTableView):
         else:
             event.ignore()
 
-    def menuEvent(self, pos):
+    def menuEvent(self, _):
         
-        index = self.indexAt(pos)
         rows = self.selectionModel().selectedRows()
 
-        data = self.model().data(index)
+        if len(rows) == 1: 
+
+            self.mymenu = QMenu(self)
+            removeAction = QAction('Remove')
+            removeAction.triggered.connect(lambda: self.removeData(rows))
+            
+            # Add Actions for Move Up and Move Down
+            moveUpAction = QAction('Move Up')
+            moveDownAction = QAction('Move Down')
+
+            moveUpAction.triggered.connect(lambda: self.moveItemUp(rows[0]))
+            moveDownAction.triggered.connect(lambda: self.moveItemDown(rows[0]))
+
+            # Adding Actions To menu
+            self.mymenu.addAction(moveUpAction)
+            self.mymenu.addAction(moveDownAction)
+            self.mymenu.addAction(removeAction)
+
+            self.mymenu.popup(QCursor.pos())
+            self.mymenu.exec_()
         
-        if data: 
+        if len(rows) > 1:
             self.mymenu = QMenu(self)
             removeAction = QAction('Remove')
             removeAction.triggered.connect(lambda: self.removeData(rows))
             self.mymenu.addAction(removeAction)
-            
-            # Add Actions for Move Up and Move Down
             self.mymenu.popup(QCursor.pos())
             self.mymenu.exec_()
+
+    def moveItemUp(self, index):
+        if index.row() > 0:
+            self.model().moveItemUp(index.row())
+
+    def moveItemDown(self, index):
+        if index.row() < len(self.getData()):
+            self.model().moveItemDown(index.row())
 
     def removeData(self, indexList):
         self.model().removeData(indexList)
@@ -158,6 +182,18 @@ class FilesModel(QAbstractTableModel):
     
     def fillTable(self, data):
         self._data = data
+
+    def moveItemUp(self, index):
+        tmp = self._data[index-1]
+        self._data[index-1] = self._data[index]
+        self._data[index] = tmp
+        self.modelReset.emit()
+        
+    def moveItemDown(self, index):
+        tmp = self._data[index+1]
+        self._data[index+1] = self._data[index]
+        self._data[index] = tmp
+        self.modelReset.emit()
 
     def flags(self, index):
         return Qt.ItemIsSelectable | Qt.ItemIsEnabled 
