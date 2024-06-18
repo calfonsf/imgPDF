@@ -4,4 +4,4 @@ This a simple program to convert image files to pdf writen in qt using the img2p
 
 ## Preview
 
-![preview](preview.png)
+![preview](preview.png =100x20)
