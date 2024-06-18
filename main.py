@@ -1,7 +1,7 @@
 import sys
 from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtCore import QSize, Qt, QFileInfo, QModelIndex
-from PyQt5.QtWidgets import QApplication, QFileDialog, QToolBar, QMessageBox, QStyle, QAction, QStatusBar
+from PyQt5.QtCore import QSize, Qt, QFileInfo, QModelIndex, QMargins
+from PyQt5.QtWidgets import QApplication, QFileDialog, QToolBar, QLabel, QStyle, QAction, QStatusBar
 from math import ceil
 
 from modules.Preview import Preview
@@ -18,6 +18,9 @@ class MainWindow(QtWidgets.QMainWindow):
         # Layout
         layout = QtWidgets.QGridLayout()
         frame.setLayout(layout)
+
+        # Title
+        self.setWindowTitle("imgPDF")
 
         # Table
         self.tv = myTable()
@@ -41,7 +44,7 @@ class MainWindow(QtWidgets.QMainWindow):
         
         icon = self.style().standardIcon(QStyle.StandardPixmap.SP_DirOpenIcon)
         button_action = QAction(icon,"Add Folder", self)
-        button_action.setStatusTip("Add Every Image In Folders to Your Convertion list")
+        button_action.setStatusTip("Add Every Image In Folders to your Convertion list")
         button_action.triggered.connect(self.openFolderNameDialog)
         toolbar.addAction(button_action)
         toolbar.setMovable(False)
@@ -51,8 +54,11 @@ class MainWindow(QtWidgets.QMainWindow):
         layout.addWidget(self.preview, 1, 2, Qt.AlignHCenter | Qt.AlignTop)
 
         # Status Bar
-        statusBar = QStatusBar()
-        self.setStatusBar(statusBar)
+        self.statusBar = QStatusBar()
+        # self.statusMsg = QLabel("Add files to your convertion list to begin")
+        # self.statusMsg.setContentsMargins(QMargins(4, 0, 0, 0))
+        # self.statusBar.addWidget(self.statusMsg)
+        self.setStatusBar(self.statusBar)
 
         # Buttons
         self.convertButton = QtWidgets.QPushButton('Create PDF',self)
@@ -64,6 +70,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.setFocus()
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
+
+        # self.size_lbl = QLabel("size")
+        # self.size_lbl.setContentsMargins(QMargins(20, 0, 0, 0))
+        # layout.addWidget(self.size_lbl, 2, 2)
 
     def fileClicked(self, index: QModelIndex):
         img_path = self.tv.model().getPath(index)

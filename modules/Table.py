@@ -20,20 +20,20 @@ class myTable(QTableView):
         self.setHorizontalScrollMode(QAbstractItemView.ScrollPerPixel)
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.menuEvent)
-        
         self.setDragDropMode(self.InternalMove)
         self.setDragEnabled(True)
         self.setDragDropOverwriteMode(False)
-
         # self.verticalHeader().setVisible(False)
         # self.setFocusPolicy(Qt.NoFocus)
 
     def dropEvent(self, event):
      
         if event.source() is self:
-            print("Event From The Inside")
             selection = self.selectedIndexes()
+            
+            # This crops the d&drop to single files instead of bulk
             from_index = selection[0].row() if selection else -1
+
             to_index = self.indexAt(event.pos()).row()
 
             if (0 <= from_index < self.model().rowCount() and
