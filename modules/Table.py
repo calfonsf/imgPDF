@@ -1,10 +1,11 @@
-from PyQt5.QtCore import Qt, QAbstractTableModel, QFileInfo
+from PyQt5.QtCore import Qt, QAbstractTableModel, QFileInfo, QModelIndex
 from PyQt5.QtWidgets import QAction, QAbstractItemView, QTableView, QMenu, QMessageBox
 from PyQt5.QtGui import QCursor
 from PyQt5.QtGui import QDrag
 from .imgPDF import ParseBytes, GetImagesInFolder, isImage
 
 class myTable(QTableView):
+
 
     def __init__(self, parent=None):
 
@@ -15,15 +16,35 @@ class myTable(QTableView):
 
         self.setShowGrid(False)
         self.setModel(model)
-        self.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.setSelectionBehavior(self.SelectRows)
         self.setHorizontalScrollMode(QAbstractItemView.ScrollPerPixel)
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.menuEvent)
         
+        self.setDragDropMode(self.InternalMove)
+        self.setDragEnabled(True)
+        self.setDragDropOverwriteMode(False)
+
         # self.verticalHeader().setVisible(False)
         # self.setFocusPolicy(Qt.NoFocus)
 
     def dropEvent(self, event):
+     
+        if event.source() is self:
+            print("Event From The Inside")
+            selection = self.selectedIndexes()
+            from_index = selection[0].row() if selection else -1
+            to_index = self.indexAt(event.pos()).row()
+
+            if (0 <= from_index < self.model().rowCount() and
+                0 <= to_index < self.model().rowCount() and
+                from_index != to_index):
+                self.model().relocateRow(from_index, to_index)
+                event.accept()
+                self.setCurrentIndex(self.indexAt(event.pos()))
+            
+            super().dropEvent(event)
+             
         if event.mimeData().hasUrls:
             event.accept()
             invalid_files = False
@@ -145,10 +166,10 @@ class FilesModel(QAbstractTableModel):
         super().__init__()
         self._data = data
 
-    def rowCount(self, _):
+    def rowCount(self, parent=None):
         return len(self._data)
 
-    def columnCount(self, _):
+    def columnCount(self, parent=None):
         return 3
 
     def data(self, index, role=Qt.DisplayRole):
@@ -207,8 +228,21 @@ class FilesModel(QAbstractTableModel):
         self._data[index] = tmp
         self.modelReset.emit()
 
-    def flags(self, index):
-        return Qt.ItemIsSelectable | Qt.ItemIsEnabled 
+    def supportedDropActions(self) -> bool:
+        return Qt.MoveAction | Qt.CopyAction
+
+    def flags(self, index: QModelIndex) -> Qt.ItemFlags:
+        if not index.isValid():
+            return Qt.ItemIsDropEnabled
+        if index.row() < len(self._data):
+            return Qt.ItemIsEnabled | Qt.ItemIsEditable | Qt.ItemIsSelectable | Qt.ItemIsDragEnabled
+        return Qt.ItemIsEnabled | Qt.ItemIsEditable
+    
+    def relocateRow(self, row_source, row_target) -> None:
+        row_a, row_b = max(row_source, row_target), min(row_source, row_target)
+        self.beginMoveRows(QModelIndex(), row_a, row_a, QModelIndex(), row_b)
+        self._data.insert(row_target, self._data.pop(row_source))
+        self.endMoveRows()
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):
 
