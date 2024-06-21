@@ -1,7 +1,7 @@
 import sys
 from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtCore import QSize, Qt, QFileInfo, QModelIndex, QMargins
-from PyQt5.QtWidgets import QApplication, QFileDialog, QToolBar, QLabel, QStyle, QAction, QStatusBar
+from PyQt5.QtCore import QSize, Qt, QFileInfo, QModelIndex
+from PyQt5.QtWidgets import QApplication, QFileDialog, QToolBar, QStyle, QAction, QStatusBar, QMessageBox
 from math import ceil
 
 from modules.Preview import Preview
@@ -131,6 +131,14 @@ class MainWindow(QtWidgets.QMainWindow):
             images = GetImagesInFolder(path)
             self.AddListToTable(images)
         dialog.deleteLater()
+    
+    def ShowOkDialog(self):
+        dlg = QMessageBox(self)
+        dlg.setWindowTitle("Completed")
+        dlg.setText("PDF Generated Succesfully!")
+        button = dlg.exec_()
+        if button == QMessageBox.Ok:
+            print("OK!")
 
 def main():
     app = QApplication(sys.argv)
